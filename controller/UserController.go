@@ -12,6 +12,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+
+//用户注册
 func Register(ctx *gin.Context) {
 	DB := common.GetDB()
 	//获取参数
@@ -71,6 +73,7 @@ func Login(ctx *gin.Context){
 	//获取参数
 	telephone := ctx.PostForm("telephone")
 	password := ctx.PostForm("password")
+
 	//数据验证
 	if len(telephone) != 11 {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "手机号码需为11位"})
@@ -97,15 +100,26 @@ func Login(ctx *gin.Context){
 		return
 	}
 	//发放token给前端
-	token := "111"
+	token,err:= common.ReleaseToken(user)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError,gin.H{"code": 500,"msg": "系统异常"})
+		log.Printf("token generate error:%v", err)//记录日志
+		return
+	}
 
 	//返回结果
 	ctx.JSON(200, gin.H{
 		"code":"200",
 		"date":gin.H{"token":token},
-		"message": "注册成功",
+		"message": "登陆成功",
 	})
 }
+
+func Info(ctx *gin.Context){
+	user, _ := ctx.Get("user")
+	ctx.JSON(http.StatusOK, gin.H{"code":200, "data": gin.H{"user": user}})
+}
+
 
 func isTelephoneExist(db *gorm.DB, telephone string) bool {
 	var user model.User
