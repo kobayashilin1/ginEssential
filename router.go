@@ -1,7 +1,7 @@
 package main
 
 import (
-	"ginEssential/controller"
+	"github.com/kobayashilin1/ginEssential/controller"
 
 	"github.com/gin-gonic/gin"
 )

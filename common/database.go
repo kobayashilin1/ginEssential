@@ -2,7 +2,7 @@ package common
 
 import (
 	"fmt"
-	"ginEssential/model"
+	"github.com/kobayashilin1/ginEssential/model"
 
 	"github.com/jinzhu/gorm"
 )

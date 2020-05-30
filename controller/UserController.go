@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"ginEssential/common"
-	"ginEssential/model"
-	"ginEssential/util"
+	"github.com/kobayashilin1/ginEssential/common"
+	"github.com/kobayashilin1/ginEssential/model"
+	"github.com/kobayashilin1/ginEssential/util"
 	"log"
 	"net/http"
 
