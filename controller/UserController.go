@@ -2,7 +2,9 @@ package controller
 
 import (
 	"github.com/kobayashilin1/ginEssential/common"
+	"github.com/kobayashilin1/ginEssential/dto"
 	"github.com/kobayashilin1/ginEssential/model"
+	"github.com/kobayashilin1/ginEssential/response"
 	"github.com/kobayashilin1/ginEssential/util"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -23,7 +25,7 @@ func Register(ctx *gin.Context) {
 
 	//电话号码数据验证
 	if len(telephone) != 11 {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "手机号码需为11位"})
+		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "手机号码需为11位")
 		//gin.H: map[string]interface{}
 		return
 		//停止继续往下执行
@@ -31,7 +33,7 @@ func Register(ctx *gin.Context) {
 
 	//验证密码
 	if len(password) < 6 {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "密码不能少于6位"})
+		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "密码不能少于6位")
 		return
 	}
 
@@ -44,7 +46,7 @@ func Register(ctx *gin.Context) {
 	//判断手机号是否存在
 
 	if isTelephoneExist(DB, telephone) {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "用户已存在，请勿重复注册"})
+		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "用户已存在，请勿重复注册")
 		return
 	}
 	//用户存在就不允许注册
@@ -52,7 +54,7 @@ func Register(ctx *gin.Context) {
 	//创建用户
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(password),bcrypt.DefaultCost)
 	if err != nil{
-		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "加密错误"})
+		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "加密错误")
 		return
 	}
 	newUser := model.User{
@@ -66,6 +68,7 @@ func Register(ctx *gin.Context) {
 		"code":"200",
 		"message": "注册成功",
 	})
+	response.Success(ctx, nil, "注册成功")
 }
 
 func Login(ctx *gin.Context){
@@ -108,16 +111,12 @@ func Login(ctx *gin.Context){
 	}
 
 	//返回结果
-	ctx.JSON(200, gin.H{
-		"code":"200",
-		"date":gin.H{"token":token},
-		"message": "登陆成功",
-	})
+	response.Success(ctx, gin.H{"token":token}, "登陆成功")
 }
 
 func Info(ctx *gin.Context){
 	user, _ := ctx.Get("user")
-	ctx.JSON(http.StatusOK, gin.H{"code":200, "data": gin.H{"user": user}})
+	ctx.JSON(http.StatusOK, gin.H{"code":200, "data": gin.H{"user":dto.ToUserDto(user.(model.User))}})
 }
 
 

@@ -1,0 +1,12 @@
+server:
+  port: 1016
+datasource:
+  driverName: mysql
+  host: 127.0.0.1
+  port: 3306
+  database: ginessential
+  username: root
+  password: 123456
+  charset: utf8
+
+#写yaml 配置文件时候一定要多检查，避免如拼写错误、多空格等低级错误。

@@ -38,7 +38,7 @@ func  AuthMiddleware() gin.HandlerFunc  {
 		var user model.User
 		DB.First(&user,userId)
 
-		//用户
+		//用户不存在
 		if user.ID == 0 {
 			ctx.JSON(http.StatusUnauthorized,gin.H{"code": 401, "msg": "权限不足"})
 			ctx.Abort()
