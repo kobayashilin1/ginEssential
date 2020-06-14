@@ -1,19 +1,19 @@
 package controller
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/kobayashilin1/ginEssential/common"
 	"github.com/kobayashilin1/ginEssential/dto"
 	"github.com/kobayashilin1/ginEssential/model"
 	"github.com/kobayashilin1/ginEssential/response"
 	"github.com/kobayashilin1/ginEssential/util"
 	"golang.org/x/crypto/bcrypt"
-	"log"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
-
 
 //用户注册
 func Register(ctx *gin.Context) {
@@ -52,26 +52,26 @@ func Register(ctx *gin.Context) {
 	//用户存在就不允许注册
 
 	//创建用户
-	hashPassword, err := bcrypt.GenerateFromPassword([]byte(password),bcrypt.DefaultCost)
-	if err != nil{
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
 		response.Response(ctx, http.StatusUnprocessableEntity, 422, nil, "加密错误")
 		return
 	}
 	newUser := model.User{
 		Name:      name,
 		Telephone: telephone,
-		Password:  string(hashPassword),//强制类型转换，将[]byte slice转换为string
+		Password:  string(hashPassword), //强制类型转换，将[]byte slice转换为string
 	}
 	DB.Create(&newUser)
 	//返回结果
 	ctx.JSON(200, gin.H{
-		"code":"200",
+		"code":    "200",
 		"message": "注册成功",
 	})
 	response.Success(ctx, nil, "注册成功")
 }
 
-func Login(ctx *gin.Context){
+func Login(ctx *gin.Context) {
 	DB := common.GetDB()
 	//获取参数
 	telephone := ctx.PostForm("telephone")
@@ -98,27 +98,26 @@ func Login(ctx *gin.Context){
 		return
 	}
 	//判断用户密码是否正确
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password),[]byte(password));err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"code": 400, "msg": "密码错误"})
 		return
 	}
 	//发放token给前端
-	token,err:= common.ReleaseToken(user)
+	token, err := common.ReleaseToken(user)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError,gin.H{"code": 500,"msg": "系统异常"})
-		log.Printf("token generate error:%v", err)//记录日志
+		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "系统异常"})
+		log.Printf("token generate error:%v", err) //记录日志
 		return
 	}
 
 	//返回结果
-	response.Success(ctx, gin.H{"token":token}, "登陆成功")
+	response.Success(ctx, gin.H{"token": token}, "登陆成功")
 }
 
-func Info(ctx *gin.Context){
+func Info(ctx *gin.Context) {
 	user, _ := ctx.Get("user")
-	ctx.JSON(http.StatusOK, gin.H{"code":200, "data": gin.H{"user":dto.ToUserDto(user.(model.User))}})
+	ctx.JSON(http.StatusOK, gin.H{"code": 200, "data": gin.H{"user": dto.ToUserDto(user.(model.User))}})
 }
-
 
 func isTelephoneExist(db *gorm.DB, telephone string) bool {
 	var user model.User
